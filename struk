@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Struk NdikaFath ID</title>
+  <style>
+    body {
+      font-family: monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px;
+    }
+    input, button, select {
+      margin: 5px;
+      padding: 5px;
+      font-family: monospace;
+    }
+    #struk {
+  padding: 10px;
+  background: #fff;
+  width: 90%;
+  max-width: 320px;
+}
+    .center { text-align: center; }
+    .bold { font-weight: bold; }
+    .right { float: right; }
+    hr { border-top: 1px solid #000; margin: 5px 0; }
+  </style>
+</head>
+<body>
+
+  <input type="text" id="noTrans" placeholder="Nomor Transaksi (manual)">
+  <input type="text" id="namaBarang" placeholder="Nama Barang">
+  <input type="number" id="harga" placeholder="Harga">
+  <input type="number" id="jumlah" placeholder="Jumlah" value="1">
+  <button onclick="tambahBarang()">Tambah Barang</button><br>
+  <select id="metode">
+    <option>QRIS</option>
+    <option>DANA</option>
+    <option>OVO</option>
+    <option>GoPay</option>
+  </select>
+  <input type="text" id="info" placeholder="Info Tambahan" value="Terima kasih!"><br>
+  <button onclick="unduhStruk()">Unduh/Gambar</button>
+  <button onclick="resetStruk()">Reset</button>
+
+  <!-- Container 9:16 -->
+  <div id="previewWrapper" style="width:360px; height:640px; background:white; display:flex; align-items:center; justify-content:center; margin-top:20px;">
+    <div id="struk">
+      <div class="center bold" id="tokoNama">NdikaFath ID</div>
+      <div class="center" id="tokoKontak">Kontak Penjual: 6289524982514</div>
+      <br>
+      <div>Nomor Transaksi: <span id="noTransaksi">-</span></div>
+      <div>Tanggal: <span id="waktu"></span></div>
+      <hr>
+      <div id="daftarBarang"></div>
+      <hr>
+      <div>Subtotal: <span class="right" id="subtotal">Rp0</span></div><br>
+      <div>Pajak (0%): <span class="right">Rp0</span></div><br>
+      <div class="bold">Total: <span class="right" id="total">Rp0</span></div><br>
+      <div>Metode: <span id="metodeBayar">QRIS</span></div>
+      <div>Info: <span id="infoTambahan">Terima kasih!</span></div>
+      <br>
+      <div class="center bold">Terima Kasih Telah Berbelanja</div>
+      <div class="center bold" id="penutup">NdikaFath ID</div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script>
+    const tokoNama = "NdikaFath ID";
+    const kontak = "6289524982514";
+    const daftarBarang = document.getElementById("daftarBarang");
+    let total = 0;
+
+    function formatTanggalLengkap() {
+      const now = new Date();
+      const hari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+      const bulan = [
+        "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+        "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+      ];
+      const namaHari = hari[now.getDay()];
+      const tgl = now.getDate();
+      const namaBulan = bulan[now.getMonth()];
+      const tahun = now.getFullYear();
+      return `${namaHari}, ${tgl} ${namaBulan} ${tahun}`;
+    }
+
+    function updateWaktu() {
+      document.getElementById("waktu").textContent = formatTanggalLengkap();
+    }
+
+    function tambahBarang() {
+      const nama = document.getElementById("namaBarang").value;
+      const harga = parseInt(document.getElementById("harga").value);
+      const jumlah = parseInt(document.getElementById("jumlah").value);
+      const noTransaksi = document.getElementById("noTrans").value;
+
+      if (!noTransaksi) return alert("Isi nomor transaksi terlebih dahulu!");
+      if (!nama || isNaN(harga) || isNaN(jumlah)) return alert("Isi nama, harga, dan jumlah barang!");
+
+      const totalHarga = harga * jumlah;
+      const item = document.createElement("div");
+      item.textContent = `${nama} - Rp${harga.toLocaleString()} x ${jumlah} = Rp${totalHarga.toLocaleString()}`;
+      daftarBarang.appendChild(item);
+
+      total += totalHarga;
+      document.getElementById("subtotal").textContent = `Rp${total.toLocaleString()}`;
+      document.getElementById("total").textContent = `Rp${total.toLocaleString()}`;
+      document.getElementById("noTransaksi").textContent = noTransaksi;
+      document.getElementById("metodeBayar").textContent = document.getElementById("metode").value;
+      document.getElementById("infoTambahan").textContent = document.getElementById("info").value;
+    }
+
+    function unduhStruk() {
+      html2canvas(document.querySelector("#previewWrapper"), {
+        backgroundColor: "#ffffff",
+        scale: 3
+      }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "struk-916.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+    }
+
+    function resetStruk() {
+      daftarBarang.innerHTML = "";
+      total = 0;
+      document.getElementById("subtotal").textContent = "Rp0";
+      document.getElementById("total").textContent = "Rp0";
+      document.getElementById("noTransaksi").textContent = "-";
+      document.getElementById("noTrans").value = "";
+      updateWaktu();
+    }
+
+    // Inisialisasi
+    document.getElementById("tokoNama").textContent = tokoNama;
+    document.getElementById("tokoKontak").textContent = "Kontak Penjual: " + kontak;
+    document.getElementById("penutup").textContent = tokoNama;
+    updateWaktu();
+  </script>
+</body>
+</html>
